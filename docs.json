@@ -24,27 +24,29 @@
       "url": "https://app.emplicon.com"
     }
   ],
-  "tabs": [
-    {
-      "tab": "Dokumentasi",
-      "groups": [
-        {
-          "group": "Pengantar",
-          "pages": ["index", "quickstart"]
-        }
-      ]
-    },
-    {
-      "tab": "API Reference",
-      "url": "api",
-      "groups": [
-        {
-          "group": "API",
-          "openapi": "https://app.emplicon.com/openapi.json"
-        }
-      ]
-    }
-  ],
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Dokumentasi",
+        "groups": [
+          {
+            "group": "Pengantar",
+            "pages": ["index", "quickstart"]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "url": "api",
+        "groups": [
+          {
+            "group": "API",
+            "openapi": "https://app.emplicon.com/openapi.json"
+          }
+        ]
+      }
+    ]
+  },
   "navbar": {
     "links": [],
     "primary": {
@@ -55,10 +57,7 @@
   },
   "footer": {
     "socials": {
-      "website": {
-        "icon": "globe",
-        "url": "https://app.emplicon.com"
-      }
+      "website": "https://app.emplicon.com"
     }
   },
   "contextual": {
