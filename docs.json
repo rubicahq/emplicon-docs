@@ -1,4 +1,5 @@
 {
+"openapi": "https://app.emplicon.com/openapi.json",
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Mint Starter Kit",
