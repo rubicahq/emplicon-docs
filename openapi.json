@@ -1,0 +1,306 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Emplicon API",
+    "description": "API publik Emplicon untuk integrasi: absensi, lembur (overtime), dan data karyawan.\n\n**Autentikasi:** API Key. Wajib mengirim dua header:\n- `X-Client-ID`: Client ID perusahaan (emp_cl_...)\n- `X-Api-Key`: API Secret Key (emp_sk_...)\n\nKeduanya didapat dari **Pengaturan → Perusahaan** di dashboard Emplicon.\n\n---\n\n**Callback (webhook) yang tersedia saat ini:**\n- **Flip** — Inquiry Rekening: `POST https://api.emplicon.com/v1/webhooks/flip/inquiry`\n- **Flip** — Disbursement: `POST https://api.emplicon.com/v1/webhooks/flip/disbursement`\n\nURL callback didaftarkan di dashboard provider (Flip, dll). Emplicon menerima request GET (verifikasi URL) dan POST (payload).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "https://api.emplicon.com", "description": "Production" },
+    { "url": "https://api-demo.emplicon.com", "description": "Demo" }
+  ],
+  "tags": [
+    { "name": "Attendances", "description": "Absensi (clock in/out)" },
+    { "name": "Overtimes", "description": "Lembur (overtime start/end)" },
+    { "name": "Employees", "description": "Data karyawan" }
+  ],
+  "paths": {
+    "/api/v1/attendances": {
+      "get": {
+        "tags": ["Attendances"],
+        "summary": "List absensi",
+        "description": "Mengambil daftar absensi dengan filter tanggal dan optional unique_employee_id.",
+        "security": [{ "apiKeyAuth": [], "clientId": [] }],
+        "parameters": [
+          { "name": "date_from", "in": "query", "schema": { "type": "string", "format": "date" }, "description": "Tanggal awal (YYYY-MM-DD)" },
+          { "name": "date_to", "in": "query", "schema": { "type": "string", "format": "date" }, "description": "Tanggal akhir (YYYY-MM-DD)" },
+          { "name": "unique_employee_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by Unique ID karyawan (e.g. MULIA-1234567)" }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+"properties": {
+                        "id": { "type": "string", "format": "uuid" },
+                          "employee_id": { "type": "string", "format": "uuid" },
+                          "unique_employee_id": { "type": "string", "description": "Unique ID karyawan (e.g. MULIA-1234567)" },
+                          "date": { "type": "string" },
+                          "clock_type": { "type": "string", "enum": ["in", "out"] },
+                          "clock_time": { "type": "string" },
+                          "status": { "type": "string" },
+                          "latitude": { "type": "number" },
+                          "longitude": { "type": "number" },
+                          "notes": { "type": "string" },
+                          "photo_url": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid API Key" }
+        }
+      },
+      "post": {
+        "tags": ["Attendances"],
+        "summary": "Buat event absensi",
+        "description": "Mencatat clock in atau clock out untuk seorang karyawan.",
+        "security": [{ "apiKeyAuth": [], "clientId": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["unique_employee_id", "date", "clock_type", "clock_time"],
+                "properties": {
+                  "unique_employee_id": { "type": "string", "description": "Unique ID karyawan (e.g. MULIA-1234567)" },
+                  "date": { "type": "string", "format": "date" },
+                  "clock_type": { "type": "string", "enum": ["in", "out"] },
+                  "clock_time": { "type": "string", "example": "08:00" },
+                  "status": { "type": "string" },
+                  "latitude": { "type": "number" },
+                  "longitude": { "type": "number" },
+                  "notes": { "type": "string" },
+                  "photo_url": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Created" },
+          "401": { "description": "Missing or invalid API Key" }
+        }
+      }
+    },
+    "/api/v1/overtimes": {
+      "get": {
+        "tags": ["Overtimes"],
+        "summary": "List lembur",
+        "description": "Mengambil daftar event lembur (start/end) dan sesi terpasang dengan durasi (jam & menit). Filter tanggal dan optional unique_employee_id.",
+        "security": [{ "apiKeyAuth": [], "clientId": [] }],
+        "parameters": [
+          { "name": "date_from", "in": "query", "schema": { "type": "string", "format": "date" }, "description": "Tanggal awal (YYYY-MM-DD)" },
+          { "name": "date_to", "in": "query", "schema": { "type": "string", "format": "date" }, "description": "Tanggal akhir (YYYY-MM-DD)" },
+          { "name": "unique_employee_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by Unique ID karyawan (e.g. MULIA-1234567)" }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "overtimes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "format": "uuid" },
+                          "employee_id": { "type": "string", "format": "uuid" },
+                          "unique_employee_id": { "type": "string" },
+                          "date": { "type": "string" },
+                          "event_type": { "type": "string", "enum": ["start", "end"] },
+                          "event_time": { "type": "string" },
+                          "event_time_display": { "type": "string" },
+                          "notes": { "type": "string" }
+                        }
+                      }
+                    },
+                    "sessions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "employee_id": { "type": "string", "format": "uuid" },
+                          "unique_employee_id": { "type": "string" },
+                          "date": { "type": "string" },
+                          "start_time": { "type": "string" },
+                          "end_time": { "type": "string" },
+                          "duration_minutes": { "type": "integer" },
+                          "duration_hours": { "type": "integer" },
+                          "duration_mins": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid API Key" }
+        }
+      },
+      "post": {
+        "tags": ["Overtimes"],
+        "summary": "Buat event lembur (mulai atau selesai)",
+        "description": "Mencatat mulai lembur (event_type=start) atau selesai lembur (event_type=end) untuk seorang karyawan. Satu API, beda type. Pasangan start–end menghitung durasi jam & menit.",
+        "security": [{ "apiKeyAuth": [], "clientId": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["unique_employee_id", "date", "event_type", "event_time"],
+                "properties": {
+                  "unique_employee_id": { "type": "string", "description": "Unique ID karyawan (e.g. MULIA-1234567)" },
+                  "date": { "type": "string", "format": "date" },
+                  "event_type": { "type": "string", "enum": ["start", "end"], "description": "Mulai lembur (start) atau selesai lembur (end)" },
+                  "event_time": { "type": "string", "example": "17:00", "description": "Jam (HH:MM)" },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Created" },
+          "401": { "description": "Missing or invalid API Key" }
+        }
+      }
+    },
+    "/api/v1/employees": {
+      "get": {
+        "tags": ["Employees"],
+        "summary": "List karyawan",
+        "description": "Mengambil daftar karyawan perusahaan.",
+        "security": [{ "apiKeyAuth": [], "clientId": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Employee" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid API Key" }
+        }
+      }
+    },
+    "/api/v1/employees/{id}": {
+      "get": {
+        "tags": ["Employees"],
+        "summary": "Lihat karyawan by ID",
+        "description": "Mengambil detail karyawan berdasarkan UUID.",
+        "security": [{ "apiKeyAuth": [], "clientId": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Employee" }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid API Key" },
+          "404": { "description": "Employee not found" }
+        }
+      }
+    },
+    "/api/v1/employees/by-phone": {
+      "get": {
+        "tags": ["Employees"],
+        "summary": "Lihat karyawan by nomor telepon",
+        "description": "Mengambil detail karyawan berdasarkan nomor telepon (query parameter `phone`).",
+        "security": [{ "apiKeyAuth": [], "clientId": [] }],
+        "parameters": [
+          { "name": "phone", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Nomor telepon karyawan" }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Employee" }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid API Key" },
+          "404": { "description": "Employee not found" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key",
+        "description": "API Secret Key (emp_sk_...). Wajib dikirim bersama header **X-Client-ID** (Client ID perusahaan). Keduanya didapat dari Pengaturan → Perusahaan di dashboard."
+      },
+      "clientId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Client-ID",
+        "description": "Client ID perusahaan (emp_cl_...). Wajib dikirim bersama **X-Api-Key**."
+      }
+    },
+    "schemas": {
+      "Employee": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "unique_id": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "employee_number": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" },
+          "address": { "type": "string" },
+          "gender": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    }
+  },
+  "security": [{ "apiKeyAuth": [], "clientId": [] }],
+  "x-callbacks": {
+    "description": "Callback (webhook) yang tersedia untuk integrasi. URL berikut dapat didaftarkan di dashboard provider (mis. Flip) untuk menerima notifikasi.",
+    "pattern": "https://api.emplicon.com/v1/webhooks/{provider}/{category}",
+    "available": [
+      {
+        "provider": "flip",
+        "callbacks": [
+          { "key": "inquiry", "label": "Inquiry Rekening", "url": "https://api.emplicon.com/v1/webhooks/flip/inquiry" },
+          { "key": "disbursement", "label": "Disbursement", "url": "https://api.emplicon.com/v1/webhooks/flip/disbursement" }
+        ]
+      }
+    ]
+  }
+}

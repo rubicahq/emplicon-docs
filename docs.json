@@ -12,7 +12,7 @@
     "dark": "#15803D"
   },
   "theme": "mint",
-  "openapi": "https://app.emplicon.com/openapi.json",
+  "openapi": "openapi.json",
   "seo": {
     "metatags": {
       "canonical": "https://docs.emplicon.com"
@@ -41,7 +41,7 @@
         "groups": [
           {
             "group": "API",
-            "openapi": "https://app.emplicon.com/openapi.json"
+            "openapi": "openapi.json"
           }
         ]
       }
