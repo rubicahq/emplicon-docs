@@ -7,9 +7,9 @@
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#175761",
+    "light": "#1e6b77",
+    "dark": "#0f3d44"
   },
   "theme": "mint",
   "openapi": "openapi.json",
@@ -31,7 +31,10 @@
         "groups": [
           {
             "group": "Pengantar",
-            "pages": ["index", "quickstart"]
+            "pages": [
+              "index",
+              "quickstart"
+            ]
           }
         ]
       },
@@ -61,6 +64,13 @@
     }
   },
   "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "cursor", "vscode"]
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor",
+      "vscode"
+    ]
   }
 }
