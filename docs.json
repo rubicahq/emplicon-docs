@@ -1,11 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Emplicon API",
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "favicon": "/favicon.svg",
+  "logo": "/images/logo-emplicon.webp",
+  "favicon": "/images/favicon.ico",
   "colors": {
     "primary": "#175761",
     "light": "#1e6b77",
